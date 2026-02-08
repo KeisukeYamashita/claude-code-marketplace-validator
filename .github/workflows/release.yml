@@ -24,9 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
       - run: pnpm test
-      - run: pnpm publish --provenance --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: pnpm publish --provenance --access public --no-git-checks
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
