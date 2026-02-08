@@ -1,0 +1,43 @@
+{
+  "name": "fs-check-marketplace",
+  "owner": {
+    "name": "Test"
+  },
+  "plugins": [
+    {
+      "name": "with-manifest",
+      "source": "./plugins/with-manifest",
+      "description": "Plugin with proper manifest"
+    },
+    {
+      "name": "without-manifest",
+      "source": "./plugins/without-manifest",
+      "description": "Plugin missing .claude-plugin/plugin.json"
+    },
+    {
+      "name": "nonexistent",
+      "source": "./plugins/does-not-exist",
+      "description": "Plugin directory does not exist"
+    },
+    {
+      "name": "strict-false-no-manifest",
+      "source": "./plugins/without-manifest",
+      "strict": false,
+      "description": "Plugin with strict: false and no manifest (OK)"
+    },
+    {
+      "name": "strict-false-with-manifest",
+      "source": "./plugins/strict-false-with-manifest",
+      "strict": false,
+      "description": "Plugin with strict: false but has manifest (warning)"
+    },
+    {
+      "name": "github-source",
+      "source": {
+        "source": "github",
+        "repo": "owner/repo"
+      },
+      "description": "GitHub source - no filesystem check needed"
+    }
+  ]
+}

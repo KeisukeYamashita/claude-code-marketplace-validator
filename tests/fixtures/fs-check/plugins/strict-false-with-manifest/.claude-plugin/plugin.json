@@ -1,0 +1,4 @@
+{
+  "name": "strict-false-plugin",
+  "description": "This plugin has strict: false but still has a plugin.json"
+}

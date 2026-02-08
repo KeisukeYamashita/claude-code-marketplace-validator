@@ -1,0 +1,13 @@
+{
+  "name": "test-marketplace",
+  "owner": {
+    "name": "Test"
+  },
+  "plugins": [
+    {
+      "name": "bad-cat",
+      "source": "./plugins/test",
+      "category": "invalid-category"
+    }
+  ]
+}

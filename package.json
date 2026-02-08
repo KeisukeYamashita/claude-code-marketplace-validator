@@ -1,0 +1,39 @@
+{
+  "name": "claude-code-marketplace-validator",
+  "version": "1.0.0",
+  "description": "CLI tool to validate Claude Code Marketplace configuration files (marketplace.json)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "marketplace-validator": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": ["claude", "claude-code", "marketplace", "validator", "json", "schema"],
+  "author": "KeisukeYamashita",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "files": ["dist"],
+  "packageManager": "pnpm@10.29.1"
+}

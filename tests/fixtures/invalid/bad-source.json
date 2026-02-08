@@ -1,0 +1,15 @@
+{
+  "name": "test-marketplace",
+  "owner": {
+    "name": "Test"
+  },
+  "plugins": [
+    {
+      "name": "bad-source-type",
+      "source": {
+        "source": "npm",
+        "package": "some-package"
+      }
+    }
+  ]
+}

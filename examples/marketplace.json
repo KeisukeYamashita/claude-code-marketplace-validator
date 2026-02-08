@@ -1,0 +1,88 @@
+{
+  "name": "my-awesome-plugins",
+  "owner": {
+    "name": "Your Name",
+    "email": "your-email@example.com"
+  },
+  "metadata": {
+    "description": "A curated collection of Claude Code plugins for web development",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "typescript-helper",
+      "description": "Enhanced TypeScript support with auto-imports and type inference",
+      "version": "1.2.0",
+      "author": {
+        "name": "Dev Team",
+        "email": "dev@example.com"
+      },
+      "source": {
+        "source": "github",
+        "repo": "your-org/typescript-helper"
+      },
+      "category": "development",
+      "homepage": "https://github.com/your-org/typescript-helper",
+      "tags": ["typescript", "lsp", "auto-import"],
+      "lspServers": {
+        "typescript": {
+          "command": "typescript-language-server",
+          "args": ["--stdio"],
+          "extensionToLanguage": {
+            ".ts": "typescript",
+            ".tsx": "typescriptreact"
+          }
+        }
+      }
+    },
+    {
+      "name": "code-review-bot",
+      "description": "Automated code review with AI-powered suggestions",
+      "version": "0.5.0-beta.2",
+      "author": {
+        "name": "Review Team"
+      },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/your-org/code-review-bot.git",
+        "ref": "main"
+      },
+      "category": "productivity",
+      "homepage": "https://example.com/code-review-bot",
+      "tags": ["review", "quality", "automation"]
+    },
+    {
+      "name": "deploy-tools",
+      "description": "Deployment automation tools with CI/CD integration",
+      "version": "2.0.0",
+      "author": {
+        "name": "DevOps Team"
+      },
+      "source": {
+        "source": "github",
+        "repo": "your-org/deploy-tools",
+        "ref": "v2.0.0",
+        "sha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+      },
+      "category": "deployment",
+      "homepage": "https://example.com/deploy-tools",
+      "tags": ["deployment", "ci-cd"],
+      "strict": false,
+      "commands": ["./commands/deploy/", "./commands/rollback.md"],
+      "hooks": {
+        "PostToolUse": [
+          {
+            "matcher": "Write|Edit",
+            "hooks": [
+              {
+                "type": "command",
+                "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate.sh"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "test-marketplace",
+  "owner": {
+    "name": "Test"
+  },
+  "plugins": [
+    {
+      "name": "bad-version",
+      "source": "./plugins/test",
+      "version": "1.0"
+    }
+  ]
+}

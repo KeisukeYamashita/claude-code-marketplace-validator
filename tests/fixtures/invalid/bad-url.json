@@ -1,0 +1,13 @@
+{
+  "name": "test-marketplace",
+  "owner": {
+    "name": "Test"
+  },
+  "plugins": [
+    {
+      "name": "test-plugin",
+      "source": "./plugins/test",
+      "homepage": "not-a-url"
+    }
+  ]
+}

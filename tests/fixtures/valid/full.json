@@ -1,0 +1,72 @@
+{
+  "name": "full-marketplace",
+  "owner": {
+    "name": "Anthropic",
+    "email": "support@anthropic.com"
+  },
+  "metadata": {
+    "description": "A fully-featured marketplace configuration",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "typescript-lsp",
+      "description": "TypeScript language server for Claude Code",
+      "version": "2.1.0",
+      "author": {
+        "name": "Dev Team",
+        "email": "dev@example.com"
+      },
+      "source": {
+        "source": "github",
+        "repo": "anthropics/typescript-lsp"
+      },
+      "category": "development",
+      "homepage": "https://github.com/anthropics/typescript-lsp",
+      "strict": false,
+      "tags": ["typescript", "lsp", "language-server"],
+      "lspServers": {
+        "typescript": {
+          "command": "typescript-language-server",
+          "args": ["--stdio"],
+          "extensionToLanguage": {
+            ".ts": "typescript",
+            ".tsx": "typescriptreact"
+          },
+          "startupTimeout": 120000
+        }
+      }
+    },
+    {
+      "name": "code-review",
+      "description": "Automated code review tool",
+      "version": "1.0.0-beta.1",
+      "author": {
+        "name": "Review Team"
+      },
+      "source": {
+        "source": "url",
+        "url": "https://github.com/example/code-review.git"
+      },
+      "category": "productivity",
+      "homepage": "https://example.com/code-review",
+      "tags": ["review", "quality"]
+    },
+    {
+      "name": "db-manager",
+      "description": "Database management plugin",
+      "version": "0.5.0",
+      "author": {
+        "name": "DB Team",
+        "email": "db@example.com"
+      },
+      "source": {
+        "source": "github",
+        "repo": "example/db-manager"
+      },
+      "category": "database",
+      "homepage": "https://example.com/db-manager",
+      "tags": ["database", "sql"]
+    }
+  ]
+}

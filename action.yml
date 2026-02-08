@@ -1,0 +1,43 @@
+name: "Claude Code Marketplace Validator"
+description: "Validate Claude Code Marketplace configuration files (marketplace.json)"
+
+inputs:
+  file:
+    description: "Path to marketplace.json"
+    required: false
+    default: ".claude-plugin/marketplace.json"
+  format:
+    description: "Output format: text, json, compact"
+    required: false
+    default: "text"
+  strict:
+    description: "Treat warnings as errors"
+    required: false
+    default: "false"
+  quiet:
+    description: "Only output errors"
+    required: false
+    default: "false"
+  version:
+    description: "Package version to install"
+    required: false
+    default: "latest"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+    - run: npm install -g claude-code-marketplace-validator@${{ inputs.version }}
+      shell: bash
+    - run: |
+        args="validate ${{ inputs.file }} --format ${{ inputs.format }} --no-color"
+        if [ "${{ inputs.strict }}" = "true" ]; then
+          args="$args --strict"
+        fi
+        if [ "${{ inputs.quiet }}" = "true" ]; then
+          args="$args --quiet"
+        fi
+        marketplace-validator $args
+      shell: bash

@@ -1,0 +1,55 @@
+name: Test Action
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  valid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          file: tests/fixtures/valid/full.json
+
+  valid-json-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          file: tests/fixtures/valid/full.json
+          format: json
+
+  invalid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: validate
+        uses: ./
+        continue-on-error: true
+        with:
+          file: tests/fixtures/invalid/bad-semver.json
+      - if: steps.validate.outcome != 'failure'
+        run: |
+          echo "::error::Expected validation to fail for invalid file"
+          exit 1
+
+  strict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: validate
+        uses: ./
+        continue-on-error: true
+        with:
+          file: tests/fixtures/valid/minimal.json
+          strict: "true"
+      - if: steps.validate.outcome != 'failure'
+        run: |
+          echo "::error::Expected strict mode to fail for file with warnings"
+          exit 1
