@@ -60,36 +60,36 @@ const lspServerSchema = z
   .object({
     command: z.string().min(1),
     args: z.array(z.string()).optional(),
-    extensionToLanguage: z.record(z.string()).optional(),
+    extensionToLanguage: z.record(z.string(), z.string()).optional(),
     startupTimeout: z.number().positive().optional(),
   })
-  .passthrough();
+  .loose();
 
 // Hook schema for inline hook definitions
 const hookEntrySchema = z.object({
   type: z.string(),
   command: z.string(),
-}).passthrough();
+}).loose();
 
 const hookMatcherSchema = z.object({
   matcher: z.string().optional(),
   hooks: z.array(hookEntrySchema),
-}).passthrough();
+}).loose();
 
 const hooksSchema = z.union([
   z.string(), // path to hooks file
-  z.record(z.array(hookMatcherSchema)), // inline hooks object
+  z.record(z.string(), z.array(hookMatcherSchema)), // inline hooks object
 ]);
 
 // MCP server schema
 const mcpServerEntrySchema = z.object({
   command: z.string(),
   args: z.array(z.string()).optional(),
-}).passthrough();
+}).loose();
 
 const mcpServersSchema = z.union([
   z.string(), // path to MCP config file
-  z.record(mcpServerEntrySchema), // inline MCP servers
+  z.record(z.string(), mcpServerEntrySchema), // inline MCP servers
 ]);
 
 // Plugin schema per official docs:
@@ -107,9 +107,7 @@ const pluginSchema = z.object({
   license: z.string().optional(),
   keywords: z.array(z.string()).optional(),
   category: z.enum(VALID_CATEGORIES, {
-    errorMap: () => ({
-      message: `Invalid category. Valid categories: ${VALID_CATEGORIES.join(", ")}`,
-    }),
+    error: `Invalid category. Valid categories: ${VALID_CATEGORIES.join(", ")}`,
   }).optional(),
   tags: z.array(z.string().min(1)).optional(),
   strict: z.boolean().optional(),
@@ -117,15 +115,15 @@ const pluginSchema = z.object({
   agents: z.union([z.string(), z.array(z.string())]).optional(),
   hooks: hooksSchema.optional(),
   mcpServers: mcpServersSchema.optional(),
-  lspServers: z.union([z.string(), z.record(lspServerSchema)]).optional(),
-}).passthrough();
+  lspServers: z.union([z.string(), z.record(z.string(), lspServerSchema)]).optional(),
+}).loose();
 
 // Marketplace metadata
 const metadataSchema = z.object({
   description: z.string().optional(),
   version: z.string().optional(),
   pluginRoot: z.string().optional(),
-}).passthrough();
+}).loose();
 
 // Marketplace root schema per official docs:
 // Required: name, owner, plugins
@@ -135,7 +133,7 @@ export const marketplaceSchema = z.object({
   owner: ownerSchema,
   plugins: z.array(pluginSchema).min(1, "plugins array must contain at least one plugin"),
   metadata: metadataSchema.optional(),
-}).passthrough();
+}).loose();
 
 export { KEBAB_CASE_REGEX, SEMVER_REGEX };
 

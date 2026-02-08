@@ -1,60 +1,60 @@
 import { existsSync } from "node:fs";
 import { resolve, join } from "node:path";
-import type { ZodError, ZodIssue } from "zod";
+import type { z } from "zod";
 import { marketplaceSchema, VALID_CATEGORIES, KEBAB_CASE_REGEX, SEMVER_REGEX } from "./schema.js";
 import type { ValidateOptions, ValidationIssue, ValidationResult } from "./types.js";
 
-function zodPathToString(path: (string | number)[]): string {
+function zodPathToString(path: PropertyKey[]): string {
   if (path.length === 0) return "root";
   return path
     .map((segment, index) => {
       if (typeof segment === "number") {
         return `[${segment}]`;
       }
-      return index === 0 ? segment : `.${segment}`;
+      return index === 0 ? String(segment) : `.${String(segment)}`;
     })
     .join("");
 }
 
-function mapZodIssueToRule(issue: ZodIssue, path: string): { rule: string; suggestion?: string } {
+function mapZodIssueToRule(issue: z.core.$ZodIssue, path: string): { rule: string; suggestion?: string } {
   const lastSegment = issue.path[issue.path.length - 1];
 
-  if (issue.code === "invalid_type" && issue.received === "undefined") {
+  if (issue.code === "invalid_type" && issue.input === undefined) {
     return {
       rule: "E001",
-      suggestion: `Add the required "${lastSegment}" field.`,
+      suggestion: `Add the required "${String(lastSegment)}" field.`,
     };
   }
 
   if (issue.code === "invalid_type") {
     return {
       rule: "E002",
-      suggestion: `Expected ${issue.expected}, got ${issue.received}.`,
+      suggestion: `Expected ${issue.expected}.`,
     };
   }
 
-  if (issue.code === "invalid_string" && issue.validation === "email") {
+  if (issue.code === "invalid_format" && issue.format === "email") {
     return {
       rule: "E004",
       suggestion: "Provide a valid email address (e.g., user@example.com).",
     };
   }
 
-  if (issue.code === "invalid_string" && issue.validation === "url") {
+  if (issue.code === "invalid_format" && issue.format === "url") {
     return {
       rule: "E005",
       suggestion: "Provide a valid URL (e.g., https://example.com).",
     };
   }
 
-  if (issue.code === "invalid_enum_value") {
+  if (issue.code === "invalid_value") {
     return {
       rule: "E006",
       suggestion: `Valid categories: ${VALID_CATEGORIES.join(", ")}`,
     };
   }
 
-  if (issue.code === "invalid_string" && issue.validation === "regex") {
+  if (issue.code === "invalid_format" && issue.format === "regex") {
     return {
       rule: "E003",
       suggestion: 'Expected format: MAJOR.MINOR.PATCH (e.g., "1.0.0").',
@@ -67,7 +67,7 @@ function mapZodIssueToRule(issue: ZodIssue, path: string): { rule: string; sugge
     };
   }
 
-  if (issue.code === "invalid_union" || issue.code === "invalid_union_discriminator") {
+  if (issue.code === "invalid_union") {
     if (path.includes("source")) {
       return {
         rule: "E009",
@@ -79,15 +79,16 @@ function mapZodIssueToRule(issue: ZodIssue, path: string): { rule: string; sugge
   return { rule: "E002" };
 }
 
-function zodIssuesToValidationIssues(zodError: ZodError): ValidationIssue[] {
+function zodIssuesToValidationIssues(zodError: z.ZodError): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
   for (const issue of zodError.issues) {
-    if (issue.code === "invalid_union" && "unionErrors" in issue) {
-      const bestError = issue.unionErrors
-        .sort((a: ZodError, b: ZodError) => a.issues.length - b.issues.length)[0];
-      if (bestError && bestError.issues.length > 0) {
-        for (const subIssue of bestError.issues) {
+    if (issue.code === "invalid_union" && issue.errors.length > 0) {
+      // In Zod v4, errors is an array of arrays of issues
+      const bestBranch = issue.errors
+        .sort((a, b) => a.length - b.length)[0];
+      if (bestBranch && bestBranch.length > 0) {
+        for (const subIssue of bestBranch) {
           const fullPath = [...issue.path, ...subIssue.path];
           const path = zodPathToString(fullPath);
           const { rule, suggestion } = mapZodIssueToRule(subIssue, path);
