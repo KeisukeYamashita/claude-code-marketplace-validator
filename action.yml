@@ -39,5 +39,6 @@ runs:
         if [ "${{ inputs.quiet }}" = "true" ]; then
           args="$args --quiet"
         fi
+        args="$args --base-path ."
         marketplace-validator $args
       shell: bash

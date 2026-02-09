@@ -36,4 +36,5 @@ export interface CLIOptions {
   strict: boolean;
   quiet: boolean;
   color: boolean;
+  basePath?: string;
 }
