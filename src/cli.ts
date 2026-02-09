@@ -21,6 +21,7 @@ export function createProgram(): Command {
     .option("-f, --format <type>", "Output format: text, json, compact", "text")
     .option("--strict", "Treat warnings as errors", false)
     .option("-q, --quiet", "Only output errors, suppress warnings and info", false)
+    .option("--base-path <path>", "Base directory for resolving relative plugin source paths (defaults to the directory containing marketplace.json)")
     .option("--no-color", "Disable colored output")
     .action((file: string, opts: Record<string, unknown>) => {
       const options: CLIOptions = {
@@ -28,6 +29,7 @@ export function createProgram(): Command {
         strict: Boolean(opts.strict),
         quiet: Boolean(opts.quiet),
         color: Boolean(opts.color),
+        basePath: opts.basePath as string | undefined,
       };
 
       runValidation(file, options);
@@ -66,7 +68,7 @@ function runValidation(filePath: string, options: CLIOptions): void {
   }
 
   // Validate with basePath for filesystem checks
-  const basePath = dirname(resolve(filePath));
+  const basePath = options.basePath ? resolve(options.basePath) : dirname(resolve(filePath));
   const result = validate(data, { strict: options.strict, basePath });
 
   // Format and output
