@@ -1,0 +1,4 @@
+{
+  "name": "unregistered-plugin",
+  "description": "A plugin that exists on disk but is not in marketplace.json"
+}

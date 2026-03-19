@@ -76,6 +76,7 @@ Options:
 | W004 | Empty description string |
 | W005 | Plugin has `strict: false` but `.claude-plugin/plugin.json` exists |
 | W006 | Name is not kebab-case (lowercase with hyphens) |
+| W007 | Plugin directory with `.claude-plugin/plugin.json` exists but is not registered in `marketplace.json` |
 
 ### Info
 
