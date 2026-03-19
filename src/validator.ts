@@ -1,5 +1,5 @@
-import { existsSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { existsSync, readdirSync } from "node:fs";
+import { resolve, join, relative } from "node:path";
 import type { z } from "zod";
 import { marketplaceSchema, VALID_CATEGORIES, KEBAB_CASE_REGEX, SEMVER_REGEX } from "./schema.js";
 import type { ValidateOptions, ValidationIssue, ValidationResult } from "./types.js";
@@ -285,6 +285,67 @@ function checkPluginDirectories(
   return { errors, warnings };
 }
 
+const SCAN_EXCLUDED_DIRS = new Set(["node_modules", ".git"]);
+
+/**
+ * W007: Detect plugin directories on disk that are not registered in marketplace.json
+ */
+function checkUnregisteredPlugins(
+  data: Record<string, unknown>,
+  basePath: string | undefined,
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const plugins = data.plugins;
+
+  if (!Array.isArray(plugins) || !basePath) return issues;
+
+  const metadata = data.metadata as Record<string, unknown> | undefined;
+  const pluginRoot = typeof metadata?.pluginRoot === "string" ? metadata.pluginRoot : undefined;
+  const scanRoot = pluginRoot ? resolve(basePath, pluginRoot) : basePath;
+
+  if (!existsSync(scanRoot)) return issues;
+
+  // Collect registered relative source paths (normalized)
+  const registeredPaths = new Set<string>();
+  for (const plugin of plugins) {
+    const p = plugin as Record<string, unknown> | undefined;
+    if (!p) continue;
+    const source = p.source;
+    if (typeof source !== "string" || !isRelativePath(source)) continue;
+    const resolved = resolvePluginSourcePath(source, basePath, pluginRoot);
+    registeredPaths.add(resolved);
+  }
+
+  let entries: string[];
+  try {
+    entries = readdirSync(scanRoot, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && !e.name.startsWith(".") && !SCAN_EXCLUDED_DIRS.has(e.name))
+      .map((e) => e.name);
+  } catch {
+    return issues;
+  }
+
+  for (const dirName of entries) {
+    const dirPath = resolve(scanRoot, dirName);
+    const pluginJsonPath = join(dirPath, ".claude-plugin", "plugin.json");
+
+    if (!existsSync(pluginJsonPath)) continue;
+    if (registeredPaths.has(dirPath)) continue;
+
+    const relativePath = `./${relative(pluginRoot ? resolve(basePath, pluginRoot) : basePath, dirPath)}`;
+    issues.push({
+      severity: "warning",
+      rule: "W007",
+      path: relativePath,
+      field: "source",
+      message: `Plugin directory "${dirName}" contains .claude-plugin/plugin.json but is not registered in marketplace.json`,
+      suggestion: `Add an entry to the "plugins" array in marketplace.json with source "${relativePath}".`,
+    });
+  }
+
+  return issues;
+}
+
 /**
  * Check source object format validity beyond what Zod catches
  */
@@ -505,6 +566,9 @@ export function validate(data: unknown, options?: ValidateOptions): ValidationRe
     const dirChecks = checkPluginDirectories(rawData, options?.basePath);
     errors.push(...dirChecks.errors);
     warnings.push(...dirChecks.warnings);
+
+    // W007: Unregistered plugin detection
+    warnings.push(...checkUnregisteredPlugins(rawData, options?.basePath));
 
     warnings.push(...checkWarnings(rawData));
     infos.push(...checkInfos(rawData));

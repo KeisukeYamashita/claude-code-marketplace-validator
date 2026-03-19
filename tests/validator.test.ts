@@ -192,6 +192,75 @@ describe("validate", () => {
     });
   });
 
+  describe("unregistered plugin detection (W007)", () => {
+    const fsBasePath = resolve(import.meta.dirname, "fixtures/fs-check");
+
+    it("W007: detects plugin directory with plugin.json not registered in marketplace.json", () => {
+      const data = {
+        name: "test",
+        owner: { name: "Owner" },
+        metadata: { pluginRoot: "plugins" },
+        plugins: [
+          { name: "with-manifest", source: "./with-manifest" },
+        ],
+      };
+      const result = validate(data, { basePath: fsBasePath });
+      const w007 = result.warnings.filter((w) => w.rule === "W007");
+      expect(w007.length).toBeGreaterThan(0);
+      expect(w007.some((w) => w.message.includes("unregistered-plugin"))).toBe(true);
+    });
+
+    it("no W007 for registered plugins", () => {
+      const data = {
+        name: "test",
+        owner: { name: "Owner" },
+        metadata: { pluginRoot: "plugins" },
+        plugins: [
+          { name: "with-manifest", source: "./with-manifest" },
+          { name: "unregistered-plugin", source: "./unregistered-plugin" },
+          { name: "strict-false-with-manifest", source: "./strict-false-with-manifest" },
+        ],
+      };
+      const result = validate(data, { basePath: fsBasePath });
+      const w007 = result.warnings.filter((w) => w.rule === "W007");
+      expect(w007).toHaveLength(0);
+    });
+
+    it("skips W007 when basePath not provided", () => {
+      const data = loadFixture("fs-check/marketplace.json");
+      const result = validate(data);
+      const w007 = result.warnings.filter((w) => w.rule === "W007");
+      expect(w007).toHaveLength(0);
+    });
+
+    it("W007 respects metadata.pluginRoot for scan scope", () => {
+      const data = {
+        name: "test",
+        owner: { name: "Owner" },
+        metadata: { pluginRoot: "plugins" },
+        plugins: [
+          { name: "with-manifest", source: "./with-manifest" },
+        ],
+      };
+      const result = validate(data, { basePath: fsBasePath });
+      const w007 = result.warnings.filter((w) => w.rule === "W007");
+      expect(w007.some((w) => w.message.includes("unregistered-plugin"))).toBe(true);
+    });
+
+    it("W007 does not flag directories without .claude-plugin/plugin.json", () => {
+      const data = {
+        name: "test",
+        owner: { name: "Owner" },
+        metadata: { pluginRoot: "plugins" },
+        plugins: [],
+      };
+      const result = validate(data, { basePath: fsBasePath });
+      const w007 = result.warnings.filter((w) => w.rule === "W007");
+      // without-manifest has no .claude-plugin/plugin.json, should not be flagged
+      expect(w007.every((w) => !w.message.includes("without-manifest"))).toBe(true);
+    });
+  });
+
   describe("source format checks", () => {
     it("detects invalid github repo format (missing slash)", () => {
       const data = {

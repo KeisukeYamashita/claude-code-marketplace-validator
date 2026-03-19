@@ -111,6 +111,7 @@ Warnings indicate potential issues but do not fail validation (unless `--strict`
 | `W002` | Missing `homepage` in plugin | `Missing "homepage" at plugins[0]. A homepage URL helps users find documentation` |
 | `W003` | Missing `tags` in plugin | `Missing "tags" at plugins[0]. Tags improve plugin discoverability in search` |
 | `W004` | Empty description | `Empty "description" at plugins[0]. A meaningful description helps users understand what the plugin does` |
+| `W007` | Unregistered plugin directory | `Plugin directory "my-plugin" contains .claude-plugin/plugin.json but is not registered in marketplace.json` |
 
 ### Info (Severity: info)
 
